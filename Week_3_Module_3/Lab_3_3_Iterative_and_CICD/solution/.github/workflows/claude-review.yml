@@ -1,0 +1,75 @@
+name: Claude Pull Request Review
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Capture pull request diff
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          git diff "origin/${{ github.base_ref }}...HEAD" > pr.diff
+
+      - name: Run headless Claude review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          DIFF_CONTENT="$(cat pr.diff)"
+
+          claude -p "Review the following pull request diff.
+
+          Check for incorrect refund calculations, missing tests,
+          weakened tests, missing validation, compatibility problems,
+          and financial risks.
+
+          Return only this JSON structure:
+          {
+            \"decision\": \"approve\" or \"request_changes\",
+            \"issues\": [
+              {
+                \"severity\": \"blocker\", \"warning\", or \"nit\",
+                \"message\": \"Clear issue description\"
+              }
+            ]
+          }
+
+          Pull request diff:
+          ${DIFF_CONTENT}" \
+          --output-format json \
+          > claude-review-output.json
+
+      - name: Apply review gate
+        run: |
+          python scripts/review_gate.py claude-review-output.json

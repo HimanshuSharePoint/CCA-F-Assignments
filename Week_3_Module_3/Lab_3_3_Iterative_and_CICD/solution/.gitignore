@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.claude/settings.local.json
+review.json
+pr.diff
+claude-review-output.json
+.env
+.env.*
