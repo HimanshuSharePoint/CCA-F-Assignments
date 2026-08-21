@@ -12,5 +12,5 @@ Complete. The implementation is available in the `solution` folder.
 - Generated a structured pull-request review.
 - Verified the review gate with pass and fail exit codes.
 - Added a GitHub Actions workflow for automated pull-request review.
-- Final test result: 14 passed.
-``
+- Final test result: **14 passed**.
+`
