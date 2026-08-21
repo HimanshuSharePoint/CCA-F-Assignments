@@ -1,0 +1,38 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+
+# IDE and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+
+# Claude Code local machine settings
+.claude/settings.local.json
+**/.claude/settings.local.json
+
+# Generated output files
+*_output.txt
+output.txt
+
+# Python environment executables
+**/.venv/
+**/venv/
