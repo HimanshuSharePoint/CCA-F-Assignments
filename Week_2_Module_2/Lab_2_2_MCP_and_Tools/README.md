@@ -1,73 +1,69 @@
-# Lab 2.2 Reflection Answers
+# Lab 3.1 Reflection Answers
 
-## 1. Where are project MCP servers declared and verified?
+## 1. Where does project memory live and how does `@import` work?
 
-Project MCP servers are declared in `.mcp.json` at the project root. Claude Code reads the file at startup, and `/mcp` displays connection status and available tools.
+Project memory lives in the root `CLAUDE.md`. Its `@import` lines include focused rule modules such as `.claude/rules/style.md` and `.claude/rules/testing.md`.
 
-## 2. Why use two MCP servers instead of pasted data?
+## 2. Why use modular rules?
 
-The Orders and Documents servers provide reusable, independently updated sources. Claude retrieves only the information needed, avoids stale copied data, and preserves a visible source trail.
+Modular files keep each rule category focused, make maintenance and reuse easier, keep the root file short, and provide clearer Git history.
 
-## 3. What did the multi-source question demonstrate?
+## 3. What memory levels were demonstrated?
 
-Claude combined order `NP-100190` from the Orders server with the return-window and condition rules from the Documents server in one answer.
+The lab used user-level memory in `~/.claude/CLAUDE.md`, project memory in the repository root, and imported project rule modules.
 
-## 4. Why was the item list important?
+## 4. What did the user-level rule demonstrate?
 
-The `BOOT-` and `FILT-` prefixes determined which footwear and filter conditions applied. General policy text alone could not identify the rules for the purchased items.
+The rule required Claude to explain a change before editing. After restarting Claude Code, the loyalty-points task showed the rule layered with project style and testing rules.
 
-## 5. Why did the servers initially fail?
+## 5. Why was the temporary loyalty-points change discarded?
 
-The installed MCP version was incompatible with `mcp.server.fastmcp.FastMCP`. Installing a compatible MCP 1.x release and launching the servers with the virtual-environment interpreter resolved the issue.
+It existed only to demonstrate memory layering. Git restored the original baseline before the slash-command exercise, returning the suite to four tests.
 
-## 6. Why use virtual-environment Python in `.mcp.json`?
+## 6. How is a slash command defined?
 
-The required MCP SDK was installed in `.venv`. Using `.venv\Scripts\python.exe` ensured the servers ran with the correct dependencies instead of an unrelated system interpreter.
+A Markdown file in `.claude/commands` defines a command, and the filename determines its name. `test.md` becomes `/test`, and `review.md` becomes `/review`.
 
-## 7. What tools did the servers expose?
+## 7. What frontmatter fields were used?
 
-The Orders server exposed `get_order` and `find_orders_by_email`. The Documents server exposed `list_docs`, `read_doc`, and `search_docs`.
+The commands used `description`, `allowed-tools`, and `argument-hint`. `$ARGUMENTS` inserted the optional scope supplied after the command.
 
-## 8. What is Glob for?
+## 8. What did `/test` demonstrate?
 
-Glob finds files by path and filename pattern. The lab used it to locate both `*.test.ts` files.
+`/test` ran the real pytest suite and summarized pass or failure results without modifying files.
 
-## 9. What is Grep for?
+## 9. Why was `/review` read-only?
 
-Grep searches file contents. It located the deprecated definition and all four active `logEvent(` calls before migration.
+A review should inspect evidence, not change it. Limiting tools to Git diff, Git status, Read, and Grep follows least privilege.
 
-## 10. Why read only `analytics.ts` first?
+## 10. What did the initial review identify?
 
-`analytics.ts` defined the replacement signature. Reading only that file revealed that `track()` accepts one `{ name, props }` object instead of two positional arguments.
+The incomplete `gift_wrap_fee()` lacked a test, type hint, docstring, named constant, and currency documentation. The command returned a Needs changes verdict without editing files.
 
-## 11. Why update imports and edit one file at a time?
+## 11. How was the checklist customized?
 
-Changing calls without imports would break the files. Editing one file at a time kept each change small, reviewable, and easy to approve.
+The review command was updated to require public monetary functions to state their currency in the docstring. The rerun applied the new team rule.
 
-## 12. Why use Edit for source files and Write for `MIGRATION.md`?
+## 12. What is a skill and how does it differ from a slash command?
 
-Edit is appropriate for targeted changes in existing files. Write is appropriate for creating a new file. Using the wrong tool could overwrite unrelated content or make the operation less precise.
+A slash command is invoked explicitly. A skill is auto-invoked when user intent matches its description. The changelog skill responded to “Update the changelog for this change.”
 
-## 13. How was migration verified?
+## 13. Why does skill description quality matter?
 
-A final Grep showed no live `logEvent(` calls in `notifications.ts` or `orders.ts`; only the deprecated definition and comment remained in `analytics.ts`.
+A narrow description may fail to trigger, while a broad one may trigger incorrectly. Good descriptions include concrete requests such as changelog entry, release notes, and user-facing change summary.
 
-## 14. What did the event rename demonstrate?
+## 14. What did the changelog skill do?
 
-Claude used Grep, Read, and Edit to change only `order_cancelled` to `order_canceled` in `orders.ts`, then updated the migration note and verified the source result.
+It inspected Git changes, identified the user-facing gift-wrap feature, and added a concise entry under `## [Unreleased]` in `CHANGELOG.md`.
 
-## 15. Why is incremental exploration better than reading everything?
+## 15. Why was a Git baseline necessary?
 
-The workflow `Glob → Grep → Read → Edit → Verify` reduces context usage, locates exact evidence, keeps changes minimal, and improves reviewability.
+Git diff powered both review and changelog workflows, while Git restore enabled safe rollback of demonstrations. A baseline was recreated because the starter archive omitted `.git` metadata.
 
-## 16. When is broader reading appropriate?
+## 16. What was the final result?
 
-Broader reading is appropriate when a public interface, shared dependency, architecture, or many related call sites are affected. Reading scope should follow discovery evidence.
-
-## 17. How do MCP and built-in tools reinforce each other?
-
-MCP provides reliable business context, while built-in tools provide precise local actions. Together they enable informed, controlled, and auditable work.
+The completed helper used a named constant, type hint, USD docstring, and tests. The final suite passed seven tests, and the changelog contained the new feature entry.
 
 ## Key Takeaway
 
-Locate precisely, read narrowly, and change minimally. Reliable data sources and precise coding tools work best together.
+Repository-based memory, commands, and skills make team behavior visible, repeatable, reviewable, and version-controlled.
