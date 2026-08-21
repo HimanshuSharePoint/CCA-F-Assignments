@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.claude/settin*s.local.json
