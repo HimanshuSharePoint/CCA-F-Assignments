@@ -1,77 +1,73 @@
-# Lab 2.2: MCP Servers and Built-in Claude Code Tools
+# Lab 2.2 Reflection Answers
 
-## Objective
+## 1. Where are project MCP servers declared and verified?
 
-Connect multiple MCP servers to Claude Code and use built-in tools to explore and modify a TypeScript project precisely.
+Project MCP servers are declared in `.mcp.json` at the project root. Claude Code reads the file at startup, and `/mcp` displays connection status and available tools.
 
-## Concepts Covered
+## 2. Why use two MCP servers instead of pasted data?
 
-- Project-scoped `.mcp.json`
-- STDIO MCP servers
-- Multiple independent MCP data sources
-- Claude Code Glob, Grep, Read, Edit, and Write tools
-- Incremental codebase exploration
+The Orders and Documents servers provide reusable, independently updated sources. Claude retrieves only the information needed, avoids stale copied data, and preserves a visible source trail.
 
-## Solution Approach
+## 3. What did the multi-source question demonstrate?
 
-Two local Python MCP servers expose order information and policy documents. Claude Code combines both sources to answer questions that require live order state and return-policy rules.
+Claude combined order `NP-100190` from the Orders server with the return-window and condition rules from the Documents server in one answer.
 
-The TypeScript migration follows an incremental workflow:
+## 4. Why was the item list important?
 
-1. Glob to find test files
-2. Grep to locate deprecated calls
-3. Read only the replacement function definition
-4. Edit each affected source file
-5. Write a migration note
-6. Grep again to verify the migration
+The `BOOT-` and `FILT-` prefixes determined which footwear and filter conditions applied. General policy text alone could not identify the rules for the purchased items.
 
-The final exercise renames one analytics event by locating the exact call site, reading only the relevant file, and changing one line.
+## 5. Why did the servers initially fail?
 
-## Important Files
+The installed MCP version was incompatible with `mcp.server.fastmcp.FastMCP`. Installing a compatible MCP 1.x release and launching the servers with the virtual-environment interpreter resolved the issue.
 
-- `.mcp.json`
-- `requirements.txt`
-- `mcp_servers/orders_server.py`
-- `mcp_servers/docs_server.py`
-- `data/orders.json`
-- `data/docs/returns-policy.md`
-- `data/docs/shipping-policy.md`
-- `data/docs/warranty.md`
-- `sample_codebase/src/analytics.ts`
-- `sample_codebase/src/notifications.ts`
-- `sample_codebase/src/orders.ts`
-- `sample_codebase/MIGRATION.md`
+## 6. Why use virtual-environment Python in `.mcp.json`?
 
-## Prerequisites
+The required MCP SDK was installed in `.venv`. Using `.venv\Scripts\python.exe` ensured the servers ran with the correct dependencies instead of an unrelated system interpreter.
 
-- Python 3.10 or later
-- Claude Code CLI
-- MCP Python SDK version 1.x
+## 7. What tools did the servers expose?
 
-## Setup
+The Orders server exposed `get_order` and `find_orders_by_email`. The Documents server exposed `list_docs`, `read_doc`, and `search_docs`.
 
-```cmd
-python -m venv .venv
-.venv\Scriptsctivate
-pip install "mcp>=1.2.0,<2.0.0"
-claude
-```
+## 8. What is Glob for?
 
-Inside Claude Code, verify the servers:
+Glob finds files by path and filename pattern. The lab used it to locate both `*.test.ts` files.
 
-```text
-/mcp
-```
+## 9. What is Grep for?
 
-## Expected Results
+Grep searches file contents. It located the deprecated definition and all four active `logEvent(` calls before migration.
 
-- `northpeak-orders` connects with two tools.
-- `northpeak-docs` connects with three tools.
-- Claude combines order `NP-100190` with the returns policy.
-- All live `logEvent` calls are migrated to `track({ name, props })`.
-- `order_cancelled` is renamed to `order_canceled` in source code.
-- Final Grep shows no old source occurrence and one new source occurrence.
+## 10. Why read only `analytics.ts` first?
 
-## Key Learning
+`analytics.ts` defined the replacement signature. Reading only that file revealed that `track()` accepts one `{ name, props }` object instead of two positional arguments.
 
-Good external context and precise built-in tools reinforce each other. Locate precisely, read narrowly, and change minimally.
+## 11. Why update imports and edit one file at a time?
+
+Changing calls without imports would break the files. Editing one file at a time kept each change small, reviewable, and easy to approve.
+
+## 12. Why use Edit for source files and Write for `MIGRATION.md`?
+
+Edit is appropriate for targeted changes in existing files. Write is appropriate for creating a new file. Using the wrong tool could overwrite unrelated content or make the operation less precise.
+
+## 13. How was migration verified?
+
+A final Grep showed no live `logEvent(` calls in `notifications.ts` or `orders.ts`; only the deprecated definition and comment remained in `analytics.ts`.
+
+## 14. What did the event rename demonstrate?
+
+Claude used Grep, Read, and Edit to change only `order_cancelled` to `order_canceled` in `orders.ts`, then updated the migration note and verified the source result.
+
+## 15. Why is incremental exploration better than reading everything?
+
+The workflow `Glob → Grep → Read → Edit → Verify` reduces context usage, locates exact evidence, keeps changes minimal, and improves reviewability.
+
+## 16. When is broader reading appropriate?
+
+Broader reading is appropriate when a public interface, shared dependency, architecture, or many related call sites are affected. Reading scope should follow discovery evidence.
+
+## 17. How do MCP and built-in tools reinforce each other?
+
+MCP provides reliable business context, while built-in tools provide precise local actions. Together they enable informed, controlled, and auditable work.
+
+## Key Takeaway
+
+Locate precisely, read narrowly, and change minimally. Reliable data sources and precise coding tools work best together.
